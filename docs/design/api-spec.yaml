@@ -1,0 +1,130 @@
+openapi: 3.0.0
+info:
+  title: Zewailian Off Campus API
+  version: 1.0.0
+  description: API specification for Zewailian Off Campus platform
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+
+paths:
+  /api/auth/register:
+    post:
+      summary: Register new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+      responses:
+        '201':
+          description: User created successfully
+          
+  /api/auth/login:
+    post:
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+      responses:
+        '200':
+          description: Login successful
+          
+  /api/chat/rooms:
+    get:
+      summary: List chat rooms
+      responses:
+        '200':
+          description: List of chat rooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChatRoom'
+                  
+    post:
+      summary: Create chat room
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChatRoom'
+      responses:
+        '201':
+          description: Chat room created
+
+  /ws/chat/{roomId}:
+    get:
+      summary: WebSocket endpoint for chat
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '101':
+          description: WebSocket connection established
+
+components:
+  schemas:
+    UserRegistration:
+      type: object
+      required:
+        - email
+        - password
+        - name
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        name:
+          type: string
+
+    UserLogin:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    ChatRoom:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+
+    CreateChatRoom:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        description:
+          type: string
