@@ -1,0 +1,23 @@
+
+@startuml Component Diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Component Diagram - Chat Service
+
+Container_Boundary(chat_service, "Chat Service") {
+    Component(hub, "Hub", "Go", "Central message broker")
+    Component(room_manager, "Room Manager", "Go", "Manages chat rooms")
+    Component(client_manager, "Client Manager", "Go", "Manages WebSocket clients")
+    Component(message_handler, "Message Handler", "Go", "Processes messages")
+    Component(auth_middleware, "Auth Middleware", "Go", "Validates user sessions")
+}
+
+ContainerDb(redis, "Redis", "Redis", "Message broker & presence")
+
+Rel(hub, room_manager, "Uses")
+Rel(hub, client_manager, "Manages")
+Rel(client_manager, message_handler, "Processes messages through")
+Rel(message_handler, redis, "Publishes/Subscribes")
+Rel(auth_middleware, client_manager, "Validates")
+
+@enduml
