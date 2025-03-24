@@ -7,5 +7,5 @@
 ![C4 Diagram 2](./puml_Preview/C4_2.png)
 
 ### Container Diagram
-![C4 Diagram 3](./puml_Preview/.png)
+![C4 Diagram 3](./puml_Preview/C4_3.png)
 
