@@ -13,10 +13,9 @@ import (
 
 var googleOauthConfig *oauth2.Config
 
-// InitGoogleOAuth initializes the Google OAuth2 config from environment variables
 func InitGoogleOAuth() {
 	redirectURL := os.Getenv("GOOGLE_OAUTH_REDIRECT_URL")
-	fmt.Println("DEBUG: GOOGLE_OAUTH_REDIRECT_URL =", redirectURL) // Debug print
+	fmt.Println("DEBUG: GOOGLE_OAUTH_REDIRECT_URL =", redirectURL) // Debug print made using ai to test the google outh.
 	googleOauthConfig = &oauth2.Config{
 		RedirectURL:  redirectURL,
 		ClientID:     os.Getenv("GOOGLE_OAUTH_CLIENT_ID"),
@@ -26,13 +25,11 @@ func InitGoogleOAuth() {
 	}
 }
 
-// GoogleLoginHandler redirects user to Google's OAuth2 consent page
 func GoogleLoginHandler(w http.ResponseWriter, r *http.Request) {
 	url := googleOauthConfig.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
-// GoogleCallbackHandler handles Google's OAuth2 callback and returns user info
 func GoogleCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	code := r.URL.Query().Get("code")
