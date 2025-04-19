@@ -13,6 +13,8 @@ func InitRouter(userHandler *user.Handler) {
 	r = gin.Default()
 
 	r.POST("/signup", userHandler.CreateUser)
+	r.POST("/login", userHandler.Login)
+	r.GET("/logout", userHandler.Logout)
 
 	// Google OAuth2 endpoints
 	r.GET("/auth/google/login", gin.WrapF(oauth.GoogleLoginHandler))
