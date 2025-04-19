@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	// Load environment variables from .env file
+
 	if err := godotenv.Load(); err != nil {
 		log.Println("Warning: No .env file found or failed to load .env")
 	}
@@ -23,7 +23,6 @@ func main() {
 	}
 	log.Println("Database connection established")
 
-	// Initialize Google OAuth2 config
 	oauth.InitGoogleOAuth()
 
 	userRep := user.NewRepository(dbConn.GetDB())
