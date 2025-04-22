@@ -3,7 +3,7 @@
 ## Circuit Breakers
 1. **Service-to-Service Communication**
    - Implementation: Using `gobreaker` package
-   - Thresholds: 
+   - Thresholds:
      - 5 failures in 10 seconds triggers open state
      - 30-second cool-down period
    - Applied to: All inter-service gRPC calls
