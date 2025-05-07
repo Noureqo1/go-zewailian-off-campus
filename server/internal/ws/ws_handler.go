@@ -72,7 +72,7 @@ func (h *Handler) JoinRoom(c *gin.Context) {
 		Username: username,
 	}
 
-	h.hub.Register <- cl
+	h.hub.JoinRoom<- cl
 	h.hub.Broadcast <- m
 
 	go cl.writeMessage()

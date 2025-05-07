@@ -8,7 +8,7 @@ type Room struct {
 
 type Hub struct {
 	Rooms      map[string]*Room
-	Register   chan *Client
+	JoinRoom   chan *Client
 	Unregister chan *Client
 	Broadcast  chan *Message
 }
@@ -16,7 +16,7 @@ type Hub struct {
 func NewHub() *Hub {
 	return &Hub{
 		Rooms:      make(map[string]*Room),
-		Register:   make(chan *Client),
+		JoinRoom:   make(chan *Client),
 		Unregister: make(chan *Client),
 		Broadcast:  make(chan *Message, 5),
 	}
@@ -25,7 +25,7 @@ func NewHub() *Hub {
 func (h *Hub) Run() {
 	for {
 		select {
-		case cl := <-h.Register:
+		case cl := <-h.JoinRoom:
 			if _, ok := h.Rooms[cl.RoomID]; ok {
 				r := h.Rooms[cl.RoomID]
 
