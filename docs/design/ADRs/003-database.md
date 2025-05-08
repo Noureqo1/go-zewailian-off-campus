@@ -3,13 +3,13 @@
 ## Status
 Accepted
 
-## Context
+## 🧠Context
 The system needs a reliable, ACID-compliant database that can handle complex queries and relationships.
 
-## Decision
+## ✅Decision
 We will use PostgreSQL as our primary database with Redis for caching and real-time features.
 
-## Consequences
+## 🎯Consequences
 ### Positive
 - Strong ACID compliance
 - Rich feature set (JSON, Full-text search)
