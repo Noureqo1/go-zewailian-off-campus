@@ -3,13 +3,13 @@
 ## Status
 Accepted
 
-## Context
+## 🧠Context
 The platform requires real-time chat functionality with minimal latency and efficient server resource usage.
 
-## Decision
+## ✅Decision
 We will use WebSocket protocol for real-time communication, implemented using Go's Gorilla WebSocket library.
 
-## Consequences
+## 🎯Consequences
 ### Positive
 - Full-duplex communication
 - Lower latency compared to HTTP polling

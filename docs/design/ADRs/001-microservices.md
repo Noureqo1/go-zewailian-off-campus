@@ -3,13 +3,13 @@
 ## Status
 Accepted
 
-## Context
+## 🧠Context
 The Zewailian Off Campus platform needs to handle multiple distinct functionalities (chat, blogging, resource sharing) with different scaling requirements and development velocities.
 
-## Decision
+## ✅Decision
 We will implement a microservices architecture using Go for the backend services.
 
-## Consequences
+## 🎯Consequences
 ### Positive
 - Independent scaling of services
 - Technology flexibility per service
