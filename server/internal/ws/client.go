@@ -8,7 +8,6 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// MessageType defines the type of message being sent
 type MessageType string
 
 const (
@@ -21,7 +20,6 @@ const (
 	MessageTypeTyping  MessageType = "typing"  // User is typing notification
 )
 
-// Client represents a connected websocket client
 type Client struct {
 	Conn       *websocket.Conn
 	Message    chan *Message
@@ -37,11 +35,11 @@ type Client struct {
 // Message represents a message sent between clients
 type Message struct {
 	ID        string      `json:"id,omitempty"`        // Unique message ID
-	Type      MessageType `json:"type"`               // Message type
-	Content   string      `json:"content"`            // Message content
-	RoomID    string      `json:"roomId"`             // Room ID
-	Username  string      `json:"username"`           // Sender username
-	Timestamp time.Time   `json:"timestamp"`          // Message timestamp
+	Type      MessageType `json:"type"`                // Message type
+	Content   string      `json:"content"`             // Message content
+	RoomID    string      `json:"roomId"`              // Room ID
+	Username  string      `json:"username"`            // Sender username
+	Timestamp time.Time   `json:"timestamp"`           // Message timestamp
 	Recipient string      `json:"recipient,omitempty"` // For private messages
 }
 
@@ -54,30 +52,24 @@ func (c *Client) writeMessage() {
 
 	// Set ping handler
 	c.Conn.SetPingHandler(func(string) error {
-		// Update last active time
+
 		c.LastActive = time.Now()
-		
-		// Respond with pong message
 		return c.Conn.WriteControl(websocket.PongMessage, []byte{}, time.Now().Add(10*time.Second))
 	})
 
-	// Start ping ticker for connection health check
 	pingTicker := time.NewTicker(30 * time.Second)
 	defer pingTicker.Stop()
 
 	for {
 		select {
 		case message, ok := <-c.Message:
-			// Channel closed
 			if !ok {
 				c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 
-			// Update last active time
 			c.LastActive = time.Now()
 
-			// Write message with error handling
 			err := c.Conn.WriteJSON(message)
 			if err != nil {
 				log.Printf("Error writing message to client %s: %v", c.ID, err)
@@ -85,7 +77,6 @@ func (c *Client) writeMessage() {
 			}
 
 		case <-pingTicker.C:
-			// Send ping to client
 			if err := c.Conn.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(10*time.Second)); err != nil {
 				log.Printf("Error sending ping to client %s: %v", c.ID, err)
 				return
@@ -94,29 +85,21 @@ func (c *Client) writeMessage() {
 	}
 }
 
-// readMessage handles incoming messages from the client
 func (c *Client) readMessage(hub *Hub) {
-	// Ensure client is unregistered when function returns
 	defer func() {
 		hub.Unregister <- c
 		c.Conn.Close()
 	}()
 
-	// Set read deadline
 	c.Conn.SetReadDeadline(time.Now().Add(5 * time.Minute))
-
-	// Set read handler for connection close
 	c.Conn.SetCloseHandler(func(code int, text string) error {
 		log.Printf("Client %s connection closed: %d %s", c.ID, code, text)
 		return nil
 	})
 
-	// Read messages in a loop
 	for {
-		// Update last active time
 		c.LastActive = time.Now()
 
-		// Read message
 		_, rawMessage, err := c.Conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
@@ -125,12 +108,8 @@ func (c *Client) readMessage(hub *Hub) {
 			break
 		}
 
-		// Try to parse as JSON first (for advanced message types)
 		var parsedMsg Message
 		if err := json.Unmarshal(rawMessage, &parsedMsg); err == nil {
-			// Successfully parsed JSON message
-			
-			// Set default values if not provided
 			if parsedMsg.Type == "" {
 				parsedMsg.Type = MessageTypeChat
 			}
@@ -144,23 +123,19 @@ func (c *Client) readMessage(hub *Hub) {
 				parsedMsg.Timestamp = time.Now()
 			}
 
-			// Handle typing indicator
 			if parsedMsg.Type == MessageTypeTyping {
 				c.IsTyping = parsedMsg.Content == "true"
 				hub.UpdateClientStatus <- c
 				continue
 			}
 
-			// Handle private messages
 			if parsedMsg.Type == MessageTypePrivate && parsedMsg.Recipient != "" {
 				hub.PrivateMessage <- &parsedMsg
 				continue
 			}
 
-			// Broadcast regular message
 			hub.Broadcast <- &parsedMsg
 		} else {
-			// Fallback to plain text message
 			msg := &Message{
 				Type:      MessageTypeChat,
 				Content:   string(rawMessage),
