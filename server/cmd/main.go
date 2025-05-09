@@ -8,8 +8,10 @@ import (
 	"server/internal/user"
 	"server/internal/ws"
 	"server/router"
+	"time"
 
 	"github.com/joho/godotenv"
+	"github.com/sony/gobreaker"
 )
 
 func main() {
@@ -44,7 +46,33 @@ func main() {
 	if redisClient != nil {
 		messageCache = message.NewRedisCache("localhost:6379", "", 0)
 	}
-	messageSvc := message.NewService(messageRepo, messageCache)
+	// Create base message service
+	baseSvc := message.NewService(messageRepo, messageCache)
+
+	// Configure circuit breaker
+	cbConfig := message.CircuitBreakerConfig{
+		Name:        "chat-service",
+		MaxRequests: 3,
+		Interval:    10 * time.Second,
+		Timeout:     30 * time.Second,
+		ReadyToTrip: func(counts gobreaker.Counts) bool {
+			failureRatio := float64(counts.TotalFailures) / float64(counts.Requests)
+			return counts.Requests >= 3 && failureRatio >= 0.6
+		},
+		OnStateChange: func(name string, from gobreaker.State, to gobreaker.State) {
+			log.Printf("Circuit breaker %s state changed from %s to %s", name, from, to)
+		},
+	}
+
+	// Configure retry mechanism
+	retryConfig := message.RetryConfig{
+		MaxElapsedTime:   1 * time.Minute,
+		MaxInterval:      5 * time.Second,
+		InitialInterval: 100 * time.Millisecond,
+	}
+
+	// Create resilient service wrapper
+	messageSvc := message.NewResilientService(baseSvc, cbConfig, retryConfig)
 	messageHandler := message.NewHandler(messageSvc)
 
 	hub := ws.NewHub()

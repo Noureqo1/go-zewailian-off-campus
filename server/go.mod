@@ -3,6 +3,7 @@ module server
 go 1.23.6
 
 require (
+	github.com/cenkalti/backoff/v4 v4.3.0
 	github.com/gin-contrib/cors v1.7.5
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-redis/redis/v8 v8.11.5
@@ -11,6 +12,7 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
+	github.com/sony/gobreaker v1.0.0
 	golang.org/x/crypto v0.36.0
 	golang.org/x/oauth2 v0.29.0
 )
