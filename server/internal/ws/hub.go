@@ -69,14 +69,12 @@ func (h *Hub) Run() {
 			}
 			
 		case cl := <-h.UpdateClientStatus:
-			// Handle client status updates (typing indicators, etc.)
 			if _, ok := h.Rooms[cl.RoomID]; ok {
 				// Update the client in the room
 				if existingClient, ok := h.Rooms[cl.RoomID].Clients[cl.ID]; ok {
 					existingClient.IsTyping = cl.IsTyping
 					existingClient.LastActive = time.Now()
 					
-					// Notify all clients in the room about the status change
 					statusMsg := &Message{
 						Type:      MessageTypeTyping,
 						Content:   map[bool]string{true: "true", false: "false"}[cl.IsTyping],
@@ -86,7 +84,6 @@ func (h *Hub) Run() {
 					}
 					
 					for _, client := range h.Rooms[cl.RoomID].Clients {
-						// Don't send typing notification back to the sender
 						if client.ID != cl.ID {
 							client.Message <- statusMsg
 						}
@@ -95,15 +92,12 @@ func (h *Hub) Run() {
 			}
 			
 		case m := <-h.PrivateMessage:
-			// Handle private messages between users
 			if _, ok := h.Rooms[m.RoomID]; ok {
 				// Find the recipient client
 				for _, cl := range h.Rooms[m.RoomID].Clients {
 					if cl.Username == m.Recipient {
-						// Send the private message to the recipient
 						cl.Message <- m
 						
-						// Also send a copy back to the sender
 						for _, sender := range h.Rooms[m.RoomID].Clients {
 							if sender.Username == m.Username {
 								sender.Message <- m

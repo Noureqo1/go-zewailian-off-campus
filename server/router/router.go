@@ -1,6 +1,7 @@
 package router
 
 import (
+	"server/internal/message"
 	"server/internal/user"
 	"server/internal/ws"
 	"time"
@@ -11,7 +12,7 @@ import (
 
 var r *gin.Engine
 
-func InitRouter(userHandler *user.Handler, wsHandler *ws.Handler) {
+func InitRouter(userHandler *user.Handler, wsHandler *ws.Handler, messageHandler *message.Handler) {
 	r = gin.Default()
 
 	r.Use(cors.New(cors.Config{
@@ -34,6 +35,21 @@ func InitRouter(userHandler *user.Handler, wsHandler *ws.Handler) {
 	r.GET("/ws/joinRoom/:roomId", wsHandler.JoinRoom)
 	r.GET("/ws/getRooms", wsHandler.GetRooms)
 	r.GET("/ws/getClients/:roomId", wsHandler.GetClients)
+
+	// Message API routes
+	messageRoutes := r.Group("/api/messages")
+	{
+		messageRoutes.GET("/room/:roomId", messageHandler.GetMessages)
+		messageRoutes.GET("/:messageId", messageHandler.GetMessage)
+	}
+	
+	// Room API routes
+	roomRoutes := r.Group("/api/rooms")
+	{
+		roomRoutes.POST("/", messageHandler.CreateRoom)
+		roomRoutes.GET("/", messageHandler.GetRooms)
+		roomRoutes.GET("/:roomId", messageHandler.GetRoom)
+	}
 }
 
 func Start(addr string) error {
