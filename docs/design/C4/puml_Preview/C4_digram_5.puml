@@ -1,0 +1,27 @@
+@startuml ContainerDiagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+System_Boundary(system, "Digital Learning Platform") {
+  Container(webapp, "Web Application", "React", "User interface for students and faculty")
+  Container(apiGateway, "API Gateway", "KrakenD", "Routes requests to microservices")
+  Container(chatService, "Chat Service", "Go + WebSocket", "Handles real-time chat")
+  Container(blogService, "Blog Service", "Go", "Manages blog posts")
+  Container(resourceService, "Resource Sharing Service", "Go", "Handles resource uploads/downloads")
+  Container(authService, "Authentication Service", "OAuth2", "Handles Google login")
+  Container(postgres, "PostgreSQL", "Database", "Stores application data")
+  Container(redis, "Redis", "Cache", "Caches frequently accessed data")
+  Container(opensearch, "OpenSearch", "Logging", "Stores logs for all services")
+}
+
+Rel(webapp, apiGateway, "Sends requests")
+Rel(apiGateway, chatService, "Routes to Chat service")
+Rel(apiGateway, blogService, "Routes to Blog service")
+Rel(apiGateway, resourceService, "Routes to Resource service")
+Rel(authService, google, "Uses OAuth2")
+Rel(apiGateway, authService, "Delegates auth")
+Rel(chatService, redis, "Uses Pub/Sub for events")
+Rel(blogService, postgres, "Reads/Writes")
+Rel(resourceService, postgres, "Reads/Writes")
+Rel(*, opensearch, "Sends logs to")
+
+@enduml

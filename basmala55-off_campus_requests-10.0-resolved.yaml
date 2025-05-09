@@ -1,0 +1,203 @@
+openapi: 3.0.0
+info:
+  title: Off-Campus Request System
+  description: |
+    API for managing student off-campus requests:
+    - Student endpoints: Submit/view requests
+    - Admin endpoints: Approve/reject requests
+  version: "10.0"
+servers:
+- url: https://virtserver.swaggerhub.com/basmala55/off_campus_requests/10.0
+  description: SwaggerHub API Auto Mocking
+- url: http://localhost:8080
+  description: Local development server
+paths:
+  /requests:
+    get:
+      tags:
+      - Requests
+      summary: List all requests
+      description: Returns paginated list of off-campus requests
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 1
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 20
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestListResponse'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - userAuth: []
+    post:
+      tags:
+      - Requests
+      summary: Submit new request
+      description: Students can submit off-campus requests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestCreate'
+        required: true
+      responses:
+        "201":
+          description: Request created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestResponse'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /requests/{id}/reject:
+    post:
+      tags:
+      - Admin
+      summary: Reject a request
+      description: Admin-only endpoint to reject requests
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Request rejected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - adminAuth: []
+components:
+  schemas:
+    RequestCreate:
+      required:
+      - destination
+      - reason
+      type: object
+      properties:
+        destination:
+          type: string
+        reason:
+          type: string
+        departure:
+          type: string
+          format: date-time
+        return:
+          type: string
+          format: date-time
+    RequestResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum:
+          - pending
+          - approved
+          - rejected
+        createdAt:
+          type: string
+          format: date-time
+    RequestListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestResponse'
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+  parameters:
+    page:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 1
+    limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 20
+  securitySchemes:
+    userAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    adminAuth:
+      type: apiKey
+      name: X-Admin-Token
+      in: header

@@ -1,0 +1,12 @@
+@startuml ComponentDiagram_Auth
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+Container(authService, "Authentication Service", "OAuth2")
+
+Component(oauthHandler, "OAuth2 Handler", "Google API", "Manages token exchange and callback")
+Component(userVerifier, "User Verifier", "Go", "Verifies and stores user identity info")
+
+Rel(oauthHandler, userVerifier, "Validates user data")
+Rel(oauthHandler, google, "Communicates via OAuth2")
+
+@enduml
