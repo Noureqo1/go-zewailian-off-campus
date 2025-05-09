@@ -17,11 +17,9 @@ case "$1" in
     docker-compose exec postgres psql -U postgres
     ;;
   "migrateup")
-    # Assuming migrate tool is installed locally
     migrate -path server/db/migrations -database "postgresql://postgres:password@localhost:5433/postgres?sslmode=disable" -verbose up
     ;;
   "migratedown")
-    # Assuming migrate tool is installed locally
     migrate -path server/db/migrations -database "postgresql://postgres:password@localhost:5433/postgres?sslmode=disable" -verbose down
     ;;
   *)
