@@ -1,0 +1,14 @@
+@startuml ComponentDiagram_Chat
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+Container(chatService, "Chat Service", "Go + Gorilla WebSocket")
+
+Component(wsHandler, "WebSocket Handler", "Gorilla WebSocket", "Handles real-time messages")
+Component(userManager, "User Manager", "Go", "Manages connected users")
+Component(messageBroker, "Message Broker", "Redis Pub/Sub", "Distributes messages to other users")
+
+Rel(wsHandler, userManager, "Registers/disconnects users")
+Rel(wsHandler, messageBroker, "Publishes messages")
+Rel(messageBroker, wsHandler, "Delivers messages")
+
+@enduml
