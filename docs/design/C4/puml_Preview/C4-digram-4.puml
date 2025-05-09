@@ -1,0 +1,18 @@
+@startuml SystemContext
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+Person(student, "Student", "Uses the platform")
+Person(faculty, "Faculty", "Manages and uses resources")
+System(system, "Digital Learning Platform", "Enables chat, blogging, and resource sharing")
+
+System_Ext(google, "Google", "OAuth2 Provider")
+System_Ext(opensearch, "OpenSearch", "Centralized Logging")
+System_Ext(redis, "Redis", "Caching and Pub/Sub")
+
+Rel(student, system, "Uses")
+Rel(faculty, system, "Uses")
+Rel(system, google, "Authenticates via")
+Rel(system, redis, "Caches data with")
+Rel(system, opensearch, "Sends logs to")
+
+@enduml
