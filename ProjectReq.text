@@ -1,0 +1,317 @@
+Software Architecture and Design Project Description
+
+Spring 2025
+
+In this project, you will design and implement a scalable, resilient, and secure web application using
+microservices architecture. The project will be completed in two phases: Phase 1 (40%) focusing on system
+design, and Phase 2 (60%) focusing on implementation and evaluation. The application should adhere to
+principles of high-quality software architecture, demonstrate scalability, resilience, and meet specified
+functional and non-functional requirements.
+
+Project Requirements
+Web Application Features
+The web application must include:
+• User authentication and authorization using OAuth2 (Google authentication).
+• A core feature with CRUD operations (e.g., chat system, social networking, or event management).
+• A dashboard with real-time updates or data visualization.
+System Design Requirements
+• Each service must have an Architectural Decision Record (ADR) documenting the reasoning behind
+chosen technologies and patterns.
+• Resilience mechanisms including circuit breakers and retries. Fallback strategies are optional.
+• Token-based authentication (OAuth2 via Google for user login, any other providers can be used
+with justification in the ADR).
+• Use an API Gateway and design at least two RESTful APIs.
+• Scalable database design (SQL or NoSQL) with sharding considerations.
+• Mode of integration and communication between services (synchronous/asynchronous) should
+be clearly justified in the ADR.
+• Memory-store implementation (Redis or equivalent) for caching and session management.
+• Centralized logging using OpenSearch.
+• Monitoring and observability setup
+• System monitoring must include both application-level and host machine metrics.
+• Not all microservices need to be implemented in the same programming language. Justify your
+choices in the ADR.
+
+Phase 1 (Week 7): High-Level System Design
+
+Objective
+Develop a complete high-level design for the web application, integrating architectural principles covered
+in the course.
+Submission Guidelines
+Students must submit a design document that includes:
+1. Requirements Specification Document
+o Functional and non-functional requirements
+o User stories/use cases
+o Architectural drivers (quality attributes like scalability, resilience)
+2. C4 Model Diagrams (Must include at least these levels:)
+o Context Diagram – High-level system overview, including users and external dependencies
+o Container Diagram – Breakdown of the system into microservices, databases, caches, etc.
+o Component Diagram – Internal structure of key services (at least one service in detail)
+o (Optional: Code Diagram if needed for specific technical decisions)
+3. Architecture Decision Records (ADRs)
+o Justifications for chosen tools, languages, architectural decisions (e.g., why microservices,
+why Redis, etc.)
+o At least one ADR per major decision (e.g., database choice, authentication method,
+message broker)
+4. API Specifications
+o RESTful API endpoints documented using OpenAPI (Swagger)
+o Synchronous and asynchronous communication clearly explained
+5. Resilience Strategies
+o Explanation of implemented circuit breakers, retries, or fallbacks
+o Justification for selected mechanisms
+6. Presentation
+o 5-minute video walkthrough of the system design
+
+Submission Format:
+• PDF document containing all diagrams, ADRs, and explanations
+• C4 diagrams in PNG/SVG format or a link to an online C4 tool (Structurizr, Draw.io, etc.)
+
+• GitHub Repository containing design artifacts (Markdown files for ADRs, OpenAPI spec, diagram
+sources if applicable)
+• Video Presentation (link to YouTube or cloud storage)
+Phase 2 (Week 13) - Final Implementation Submission
+You must submit:
+1. Updated Design Document
+o Revised C4 Model reflecting the implemented system
+o Deployment model including load balancers, failover mechanisms, and scaling
+considerations. (how the system is hosted on Azure or another cloud service)
+o Additional ADRs (if changes were made)
+2. Implemented Web Application (Back-end & Front-end)
+o Fully functional codebase in GitHub (following clean architecture principles).
+o Services must be containerized (Docker + Compose/Kubernetes).
+o CRUD functionality with API Gateway for service orchestration.
+o Implementation of caching (Redis) and message brokers (Kafka/RabbitMQ).
+o Centralized logging (OpenSearch, Loki, or Azure Monitor).
+o Basic Frontend implementation built using a modern front-end framework (React, Vue,
+Angular) with OAuth2 authentication integration. (Optional)
+
+3. Security Implementation
+o OAuth2 authentication (Google or alternative)
+o Secure API implementation (rate limiting, HTTPS, JWT tokens)
+4. Basic Testing & Quality Assurance
+o Integration tests for core functionality covering API endpoints, service interactions, and
+database queries.
+o Unit tests for core business logic with at least 80% coverage.
+o Load & stress testing (k6, JMeter) to evaluate system scalability under high concurrency.
+o Contract Testing to ensure service compatibility.
+5. Deployment, Monitoring and Observability
+o Logging setup (OpenSearch, Loki, or Azure Monitor)
+o Application and system monitoring (Grafana, Azure Monitor)
+o Configured alerts for failures
+
+6. Final Report
+o Summary of system architecture and trade-offs
+o Challenges faced and solutions implemented
+o Performance evaluation results
+7. Presentation (10 minutes)
+o Walkthrough of the running system
+o Discussion of key architectural decisions
+
+Submission Format:
+• GitHub Repository containing full codebase, Dockerfiles, and deployment scripts
+• PDF Document with updated architecture and evaluation
+• Monitoring Dashboards (screenshots or links to live dashboards)
+• Presentation file
+
+Grading Rubric (100 points)
+Criteria Points
+Clarity and completeness of requirements 15
+Quality of architectural decisions 20
+Accuracy and clarity of diagrams 20
+Justification of integration choices (sync vs async, language choices) 20
+Inclusion of scalability, resilience, and performance considerations 15
+Presentation and communication 10
+
+Overall Grading Weightage
+• Phase 1: 40%
+• Phase 2: 60%
+
+Suggested Project Ideas
+1. Real-time Chat System
+
+o Features: User authentication, real-time messaging, presence status.
+o Architecture: Event-driven microservices using message brokers.
+2. Social Networking Platform
+o Features: User profiles, post creation, and real-time notifications.
+o Architecture: Microservices with async event-based communication.
+3. Event Management System
+o Features: Event creation, RSVP system, and notifications.
+o Architecture: API Gateway, message queues, and scalable databases.
+4. Live Collaboration Tool
+o Features: Shared document editing, comments, and access control.
+o Architecture: Multi-language microservices with Redis caching.
+
+Late Submission Policy
+1. Penalty of 10% per day for up to 3 days.
+2. After 3 days, a grade of 0 will be assigned, unless prior approval is granted.
+3. Extensions require approval at least 48 hours before the deadline.
+
+Plagiarism Policy
+1. Strictly no copying of code or documentation from external sources without proper citation.
+2. Unauthorized collaboration will result in a grade of 0.
+3. Plagiarism cases may be escalated for disciplinary action.
+4. Attribution must be included for any borrowed code or resources.
+
+Grading Rubric
+1. Requirements and Quality Attributes (15%)
+Criteria Phase 1 (10%) Phase 2 (5%)
+Functional
+Requirements
+
+Clearly defined functional
+requirements (CRUD,
+
+Fully implemented and correctly
+functioning requirements as per design.
+(2%)
+
+authentication, etc.), use cases/user
+stories, and API expectations. (5%)
+
+Non-Functional
+Requirements
+(Quality Attributes)
+
+Identification and justification of
+non-functional requirements
+(scalability, fault tolerance,
+resilience). (5%)
+
+Demonstrated implementation of at
+least two key non-functional
+requirements (e.g., sharding for
+scalability, retries for resilience). (3%)
+
+2. System Design and Documentation (30%)
+Criteria Phase 1 (20%) Phase 2 (10%)
+Architectural
+Design
+
+Clearly defined microservices architecture,
+justified selection of architectural style, proper
+use of integration modes
+(synchronous/asynchronous). (5%)
+
+Properly implemented
+architecture as per design, with
+adjustments documented in an
+ADR. (3%)
+
+Architecture
+Diagrams
+
+High-level system diagram, component diagram,
+API design, and C4 model representation. (5%)
+
+Deployment diagram showing
+actual implementation with
+services, dependencies, and
+infrastructure components.
+(3%)
+
+ADR
+(Architectural
+Decision
+Records)
+
+Documented ADRs for all key decisions
+(database choice, message broker,
+authentication method, caching, etc.). (5%)
+
+Justification and reflection on
+trade-offs in final ADRs. (2%)
+
+Scalability &
+Fault Tolerance
+Design
+
+Design includes scalability considerations
+(sharding, auto-scaling), resilience strategies
+(circuit breakers, retries, fallback). (5%)
+
+Implemented at least one
+strategy effectively with
+documentation. (2%)
+
+3. Implementation, Functionality & Deployment (40%)
+Criteria Phase
+1
+Phase 2 (40%)
+
+Core Functionality
+Implementation
+
+-- Fully functional system with all features working correctly, as per
+the Phase 1 plan. (authentication, API endpoints, CRUD
+operations) (10%)
+
+Microservices
+Implementation
+
+-- Proper integration of all services, adhering to microservices
+principles. (10%)
+
+Deployment & API
+Development &
+Integration
+
+-- Well-defined RESTful APIs with Swagger/OpenAPI
+documentation. Fully functional APIs with proper request
+validation, error handling, and logging. (10%)
+
+Testing & Test
+Coverage
+
+Basic automated unit tests, integration tests, contract testing,
+and API tests (e.g., using Postman, k6, Jest, or Go testing tools).
+CI/CD pipeline for automated testing. (10%)
+
+4. Monitoring and Observability (10%)
+Criteria Phase 1
+(N/A)
+
+Phase 2 (10%)
+
+System Metrics
+Collection
+
+N/A Host-level (CPU, memory, disk) and application-level (response time,
+
+throughput, error rate) monitoring implemented. (4%)
+
+Logging and
+Traceability
+
+N/A Centralized logging with OpenSearch, Loki, or Azure Monitor; proper
+
+use of distributed tracing. (3%)
+
+Alerts and
+Dashboards
+
+N/A Dashboards set up with Grafana/Azure Monitor, alerts configured for
+
+critical events. (3%)
+
+5. Security Implementation (5%)
+Criteria Phase 1
+(N/A)
+
+Phase 2 (5%)
+
+Authentication &
+Authorization
+
+N/A OAuth2-based authentication with Google (or another
+provider), role-based authorization implemented. (3%)
+Secure API Practices N/A APIs secured with HTTPS, proper input validation, rate limiting,
+
+and JWT token handling. (2%)
+
+Grading Rubric Summary
+Criteria Phase 1 Phase 2 Total Weight
+Requirements and Quality Attributes 10% 5% 15%
+System Design and Documentation 20% 10% 30%
+Implementation and Functionality - 40% 40%
+Monitoring and Observability - 10% 10%
+
+Security Implementation - 5% 5%

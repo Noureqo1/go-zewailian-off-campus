@@ -25,7 +25,7 @@ func NewHub() *Hub {
 func (h *Hub) Run() {
 	for {
 		select {
-		case cl := <-h.Register:
+		case cl := <-h.Register: //join
 			if _, ok := h.Rooms[cl.RoomID]; ok {
 				r := h.Rooms[cl.RoomID]
 
