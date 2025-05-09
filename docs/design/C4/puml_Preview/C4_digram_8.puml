@@ -1,0 +1,28 @@
+@startuml
+title Messaging Microservice Schema - ADR 005
+
+entity "rooms" {
+  *id : VARCHAR(36) <<PK>>
+  --
+  name : VARCHAR(255)
+  owner_id : VARCHAR(36)
+  created : TIMESTAMP
+  last_activity : TIMESTAMP
+}
+
+entity "messages" {
+  *id : VARCHAR(36) <<PK>>
+  --
+  room_id : VARCHAR(36) <<FK>>
+  user_id : VARCHAR(36)
+  username : VARCHAR(255)
+  content : TEXT
+  type : VARCHAR(50)
+  timestamp : TIMESTAMP
+  recipient : VARCHAR(255)
+}
+
+' Relationships
+rooms ||..o{ messages : has
+
+@enduml
