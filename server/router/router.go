@@ -1,30 +1,55 @@
 package router
 
 import (
-	"server/internal/oauth"
+	"server/internal/message"
 	"server/internal/user"
 	"server/internal/ws"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 var r *gin.Engine
 
-func InitRouter(userHandler *user.Handler, wsHandler *ws.Handler) {
+func InitRouter(userHandler *user.Handler, wsHandler *ws.Handler, messageHandler *message.Handler) {
 	r = gin.Default()
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST"},
+		AllowHeaders:     []string{"Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		AllowOriginFunc: func(origin string) bool {
+			return origin == "http://localhost:3000"
+		},
+		MaxAge: 12 * time.Hour,
+	}))
 
 	r.POST("/signup", userHandler.CreateUser)
 	r.POST("/login", userHandler.Login)
 	r.GET("/logout", userHandler.Logout)
-
-	r.GET("/auth/google/login", gin.WrapF(oauth.GoogleLoginHandler))
-	r.GET("/auth/google/callback", gin.WrapF(oauth.GoogleCallbackHandler))
 
 	r.POST("/ws/createRoom", wsHandler.CreateRoom)
 	r.GET("/ws/joinRoom/:roomId", wsHandler.JoinRoom)
 	r.GET("/ws/getRooms", wsHandler.GetRooms)
 	r.GET("/ws/getClients/:roomId", wsHandler.GetClients)
 
+	// Message API routes
+	messageRoutes := r.Group("/api/messages")
+	{
+		messageRoutes.GET("/room/:roomId", messageHandler.GetMessages)
+		messageRoutes.GET("/:messageId", messageHandler.GetMessage)
+	}
+	
+	// Room API routes
+	roomRoutes := r.Group("/api/rooms")
+	{
+		roomRoutes.POST("/", messageHandler.CreateRoom)
+		roomRoutes.GET("/", messageHandler.GetRooms)
+		roomRoutes.GET("/:roomId", messageHandler.GetRoom)
+	}
 }
 
 func Start(addr string) error {
