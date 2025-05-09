@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"time"
@@ -17,19 +18,20 @@ const (
 	MessageTypeSystem  MessageType = "system"  // System message
 	MessageTypePrivate MessageType = "private" // Private message to specific user
 	MessageTypeError   MessageType = "error"   // Error message
-	MessageTypeTyping  MessageType = "typing"  // User is typing notification
+	MessageTypeTyping  MessageType = "typing"  // Client represents a connected websocket client
 )
 
 type Client struct {
-	Conn       *websocket.Conn
-	Message    chan *Message
-	ID         string    `json:"id"`
-	RoomID     string    `json:"roomId"`
-	Username   string    `json:"username"`
-	IsActive   bool      `json:"isActive"`   // Whether client is currently active
-	JoinedAt   time.Time `json:"joinedAt"`   // When client joined
-	LastActive time.Time `json:"lastActive"` // Last activity timestamp
-	IsTyping   bool      `json:"isTyping"`   // Whether client is currently typing
+	Conn          *websocket.Conn
+	Message       chan *Message
+	ID            string    `json:"id"`
+	RoomID        string    `json:"roomId"`
+	Username      string    `json:"username"`
+	IsActive      bool      `json:"isActive"`   // Whether client is currently active
+	IsTyping      bool      `json:"isTyping"`   // Whether client is currently typing
+	LastActive    time.Time `json:"lastActive"` // Last activity timestamp
+	JoinedAt      time.Time `json:"joinedAt"`   // When client joined
+	messageService MessageService // Service for persisting messages
 }
 
 // Message represents a message sent between clients
@@ -131,10 +133,25 @@ func (c *Client) readMessage(hub *Hub) {
 
 			if parsedMsg.Type == MessageTypePrivate && parsedMsg.Recipient != "" {
 				hub.PrivateMessage <- &parsedMsg
+				
+				// Save private message to database if message service is available
+				if c.messageService != nil {
+					if err := c.messageService.SaveMessage(context.Background(), &parsedMsg); err != nil {
+						log.Printf("Error saving private message to database: %v", err)
+					}
+				}
 				continue
 			}
 
+			// Broadcast regular message
 			hub.Broadcast <- &parsedMsg
+			
+			// Save message to database if message service is available
+			if c.messageService != nil {
+				if err := c.messageService.SaveMessage(context.Background(), &parsedMsg); err != nil {
+					log.Printf("Error saving message to database: %v", err)
+				}
+			}
 		} else {
 			msg := &Message{
 				Type:      MessageTypeChat,
@@ -145,6 +162,13 @@ func (c *Client) readMessage(hub *Hub) {
 			}
 
 			hub.Broadcast <- msg
+			
+			// Save message to database if message service is available
+			if c.messageService != nil {
+				if err := c.messageService.SaveMessage(context.Background(), msg); err != nil {
+					log.Printf("Error saving message to database: %v", err)
+				}
+			}
 		}
 	}
 }
