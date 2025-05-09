@@ -41,7 +41,3 @@ go-zewailian-off-campus/
 ├── docs/ # Design Diagrams, API Specs, Test Screenshots
 ├── README.md
 └── .gitignore
-
-yaml
-Copy
-Edit
