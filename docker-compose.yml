@@ -7,15 +7,50 @@ services:
     ports:
       - "5433:5432"
     environment:
-      POSTGRES_USER: root
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - app-network
+
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./server/db/migrations:/migrations
+    command: ["-path", "/migrations", "-database", "postgresql://postgres:password@postgres:5432/postgres?sslmode=disable", "up"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  redis:
+    image: redis:alpine
+    container_name: redis_cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
+  redis_data:
+
+networks:
+  app-network:
+    driver: bridge
