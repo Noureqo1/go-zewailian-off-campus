@@ -1,19 +1,30 @@
 package ws
 
 import (
+	"context"
+	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
 
-type Handler struct {
-	hub *Hub
+type MessageService interface {
+	SaveMessage(ctx context.Context, message interface{}) error
+	CreateRoom(ctx context.Context, id, name, ownerID string) (interface{}, error)
+	UpdateRoomActivity(ctx context.Context, roomID string) error
 }
 
-func NewHandler(h *Hub) *Handler {
+type Handler struct {
+	hub            *Hub
+	messageService MessageService
+}
+
+func NewHandler(h *Hub, messageService MessageService) *Handler {
 	return &Handler{
-		hub: h,
+		hub:            h,
+		messageService: messageService,
 	}
 }
 
@@ -30,9 +41,19 @@ func (h *Handler) CreateRoom(c *gin.Context) {
 	}
 
 	h.hub.Rooms[req.ID] = &Room{
-		ID:      req.ID,
-		Name:    req.Name,
-		Clients: make(map[string]*Client),
+		ID:           req.ID,
+		Name:         req.Name,
+		Clients:      make(map[string]*Client),
+		OwnerID:      "system",
+		Created:      time.Now(),
+		LastActivity: time.Now(),
+	}
+
+	if h.messageService != nil {
+		_, err := h.messageService.CreateRoom(c.Request.Context(), req.ID, req.Name, "system")
+		if err != nil {
+			log.Printf("Error saving room to database: %v", err)
+		}
 	}
 
 	c.JSON(http.StatusOK, req)
@@ -67,13 +88,27 @@ func (h *Handler) JoinRoom(c *gin.Context) {
 	}
 
 	m := &Message{
-		Content:  "A new user has joined the room",
-		RoomID:   roomID,
-		Username: username,
+		Content:   "A new user has joined the room",
+		RoomID:    roomID,
+		Username:  username,
+		Type:      MessageTypeJoin,
+		Timestamp: time.Now(),
 	}
 
 	h.hub.Register <- cl
 	h.hub.Broadcast <- m
+
+	if h.messageService != nil {
+		if err := h.messageService.UpdateRoomActivity(c.Request.Context(), roomID); err != nil {
+			log.Printf("Error updating room activity: %v", err)
+		}
+		
+		if err := h.messageService.SaveMessage(c.Request.Context(), m); err != nil {
+			log.Printf("Error saving join message: %v", err)
+		}
+	}
+
+	cl.messageService = h.messageService
 
 	go cl.writeMessage()
 	cl.readMessage(h.hub)

@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"server/db"
+	"server/internal/message"
 	"server/internal/oauth"
 	"server/internal/user"
 	"server/internal/ws"
@@ -24,20 +25,41 @@ func main() {
 	}
 	log.Println("Database connection established")
 
+	redisClient, err := db.NewRedisClient("localhost:6379", "", 0)
+	if err != nil {
+		log.Printf("Warning: Redis connection failed: %v. Proceeding without caching.", err)
+	} else {
+		log.Println("Redis connection established")
+		defer redisClient.Close()
+	}
+
 	oauth.InitGoogleOAuth()
 
 	userRep := user.NewRepository(dbConn.GetDB())
 	userSvc := user.NewService(userRep)
 	userHandler := user.NewHandler(userSvc)
 
+	messageRepo := message.NewPostgresRepository(dbConn.GetDB())
+	var messageCache message.Cache
+	if redisClient != nil {
+		messageCache = message.NewRedisCache("localhost:6379", "", 0)
+	}
+	messageSvc := message.NewService(messageRepo, messageCache)
+	messageHandler := message.NewHandler(messageSvc)
+
 	hub := ws.NewHub()
-	wsHandler := ws.NewHandler(hub)
+
+	messageAdapter := ws.NewMessageServiceAdapter(messageSvc)
+	wsHandler := ws.NewHandler(hub, messageAdapter)
 
 	go hub.Run()
 
-	router.InitRouter(userHandler, wsHandler)
-	log.Println("Starting server on :8081")
-	if err := router.Start(":8081"); err != nil {
+	if wsHandler != nil && messageSvc != nil {
+	}
+
+	router.InitRouter(userHandler, wsHandler, messageHandler)
+	log.Println("Starting server on :8080")
+	if err := router.Start(":8080"); err != nil {
 		log.Fatalf("could not start server: %v", err)
 	}
 

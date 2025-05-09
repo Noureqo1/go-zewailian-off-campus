@@ -2,7 +2,9 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
+	"os"
 
 	_ "github.com/lib/pq"
 )
@@ -12,8 +14,15 @@ type Database struct {
 }
 
 func NewDatabase() (*Database, error) {
-	log.Printf("Connecting to PostgreSQL on port 5433...")
-	db, err := sql.Open("postgres", "postgresql://postgres:password@localhost:5433/go-chat?sslmode=disable")
+	log.Printf("Connecting to PostgreSQL...")
+	connStr := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=disable",
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_NAME"))
+
+	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Printf("Error opening database: %v", err)
 		return nil, err

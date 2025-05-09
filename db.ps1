@@ -1,5 +1,3 @@
-# PowerShell script to replace Makefile commands
-
 param (
     [Parameter(Position=0)]
     [string]$Command
@@ -22,11 +20,9 @@ switch ($Command) {
         docker-compose exec postgres psql -U root
     }
     "migrateup" {
-        # Assuming migrate tool is installed locally
         migrate -path server/db/migrations -database "postgresql://root:password@localhost:5433/go-chat?sslmode=disable" -verbose up
     }
     "migratedown" {
-        # Assuming migrate tool is installed locally
         migrate -path server/db/migrations -database "postgresql://root:password@localhost:5433/go-chat?sslmode=disable" -verbose down
     }
     default {
