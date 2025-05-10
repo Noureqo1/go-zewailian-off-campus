@@ -44,7 +44,7 @@ const Index = () => {
       }
     }
     getUsers()
-  }, [])
+  }, [conn, router])
 
   // Effect for autosize textarea initialization
   useEffect(() => {
@@ -80,7 +80,7 @@ const Index = () => {
 
       // Determine if message is from self or others
       const messageWithType = {...m}
-      if (user?.username === m.username) {
+      if ((user?.name || user?.username) === m.username) {
         messageWithType.type = 'self'
       } else {
         messageWithType.type = 'recv'
@@ -96,7 +96,7 @@ const Index = () => {
     return () => {
       conn.removeEventListener('message', handleMessage)
     }
-  }, [conn, router, user?.username])
+  }, [conn, router, user?.username, user?.name])
 
   const sendMessage = () => {
     if (!textarea.current?.value) return

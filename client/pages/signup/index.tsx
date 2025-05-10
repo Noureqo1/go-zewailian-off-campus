@@ -1,51 +1,31 @@
-import { useState, useContext, useEffect } from 'react'
 import { API_URL } from '../../constants'
+import { useState, useContext } from 'react'
 import { useRouter } from 'next/router'
-import { AuthContext, UserInfo } from '../../modules/auth_provider'
 import { FcGoogle } from 'react-icons/fc'
 import Link from 'next/link'
 
-const LoginPage = () => {
+import { AuthContext, UserInfo } from '../../modules/auth_provider'
+
+const SignupPage = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const { authenticated, setAuthenticated, setUser } = useContext(AuthContext)
-
+  const [name, setName] = useState('')
   const router = useRouter()
+  const { setAuthenticated, setUser } = useContext(AuthContext)
 
-  useEffect(() => {
-    if (authenticated) {
-      router.push('/')
-      return
-    }
-
-    const urlParams = new URLSearchParams(window.location.search)
-    const success = urlParams.get('success')
-    if (success === 'true') {
-      // Get user info after successful Google OAuth
-      fetch(`${API_URL}/auth/me`, {
-        credentials: 'include'
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (!data.error) {
-            setUser(data)
-            setAuthenticated(true)
-            localStorage.setItem('user_info', JSON.stringify(data))
-            router.push('/')
-          }
-        })
-        .catch(err => console.error('Error fetching user info:', err))
-    }
-  }, [authenticated, router, setUser, setAuthenticated])
+  const handleGoogleSignup = () => {
+    window.location.href = `${API_URL}/auth/google/login`
+  }
 
   const submitHandler = async (e: React.SyntheticEvent) => {
     e.preventDefault()
 
     try {
-      const res = await fetch(`${API_URL}/auth/login`, {
+      const res = await fetch(`${API_URL}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        credentials: 'include',
+        body: JSON.stringify({ email, password, name }),
       })
 
       const data = await res.json()
@@ -58,42 +38,37 @@ const LoginPage = () => {
         }
 
         localStorage.setItem('user_info', JSON.stringify(user))
-        return router.push('/')
+        setAuthenticated(true)
+        setUser(user)
+        router.push('/')
+      } else {
+        // Handle signup error
+        console.error('Signup failed:', data.error)
       }
     } catch (err) {
-      console.log(err)
+      console.error('Signup error:', err)
     }
-  }
-
-  const handleGoogleLogin = () => {
-    const popup = window.open(
-      `${API_URL}/auth/google/login`,
-      'Google Login',
-      'width=500,height=600'
-    )
-
-    window.addEventListener('message', (event) => {
-      if (event.origin !== 'http://localhost:8080') return
-      if (event.data.type === 'oauth_success') {
-        const { user } = event.data
-        setUser(user)
-        setAuthenticated(true)
-        localStorage.setItem('user_info', JSON.stringify(user))
-        router.push('/')
-        popup?.close()
-      }
-    })
   }
 
   return (
     <div className='flex items-center justify-center min-w-full min-h-screen'>
       <div className='w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md'>
         <h1 className='text-2xl font-bold text-center text-gray-900'>
-          Welcome Back
+          Create Account
         </h1>
-        <p className='text-center text-gray-600'>Sign in to continue to Chat</p>
+        <p className='text-center text-gray-600'>Join our chat community</p>
 
         <form className='space-y-4' onSubmit={submitHandler}>
+          <div>
+            <input
+              type='text'
+              placeholder='Full Name'
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500'
+              required
+            />
+          </div>
           <div>
             <input
               type='email'
@@ -101,6 +76,7 @@ const LoginPage = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500'
+              required
             />
           </div>
           <div>
@@ -110,13 +86,14 @@ const LoginPage = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500'
+              required
             />
           </div>
           <button
             type='submit'
             className='w-full px-4 py-2 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
           >
-            Sign in
+            Sign up
           </button>
         </form>
 
@@ -130,19 +107,18 @@ const LoginPage = () => {
         </div>
 
         <button
-          onClick={handleGoogleLogin}
+          onClick={handleGoogleSignup}
           className='flex items-center justify-center w-full px-4 py-2 space-x-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
         >
           <FcGoogle className='w-6 h-6' aria-hidden='true' />
-          <span>Sign in with Google</span>
-        </button> 
-
+          <span>Sign up with Google</span>
+        </button>
 
         <div className='text-center text-sm text-gray-600'>
-          Don't have an account?{' '}
-          <Link href='/signup'>
+          Already have an account?{' '}
+          <Link href='/login'>
             <span className='font-medium text-indigo-600 hover:text-indigo-500 cursor-pointer'>
-              Sign up
+              Sign in
             </span>
           </Link>
         </div>
@@ -151,4 +127,4 @@ const LoginPage = () => {
   )
 }
 
-export default LoginPage
+export default SignupPage

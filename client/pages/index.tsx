@@ -58,7 +58,7 @@ const Home = () => {
 
   const joinRoom = (roomId: string) => {
     const ws = new WebSocket(
-      `${WEBSOCKET_URL}/ws/joinRoom/${roomId}?userId=${user.id}&username=${user.username}`
+      `${WEBSOCKET_URL}/ws/joinRoom/${roomId}?userId=${user.id}&username=${user.name || user.username}`
     )
     if (ws.OPEN) {
       setConn(ws)
