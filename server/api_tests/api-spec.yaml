@@ -1,0 +1,304 @@
+openapi: 3.0.0
+info:
+  title: Zewailian Off Campus API
+  version: 1.0.0
+  description: API specification for Zewailian Off Campus platform
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+
+paths:
+  /auth/signup:
+    post:
+      summary: Register new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /auth/login:
+    post:
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /auth/me:
+    get:
+      summary: Get current user info
+      responses:
+        '200':
+          description: User info retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /auth/google/login:
+    get:
+      summary: Initiate Google OAuth login
+      responses:
+        '302':
+          description: Redirect to Google OAuth
+
+  /auth/google/callback:
+    get:
+      summary: Google OAuth callback
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OAuth successful
+          content:
+            text/html:
+              schema:
+                type: string
+
+  /auth/logout:
+    post:
+      summary: Logout user
+      responses:
+        '200':
+          description: Logout successful
+
+  /ws/createRoom:
+    post:
+      summary: Create chat room
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoom'
+      responses:
+        '201':
+          description: Room created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+
+  /ws/getRooms:
+    get:
+      summary: Get all chat rooms
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: List of rooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Room'
+
+  /ws/joinRoom/{roomId}:
+    get:
+      summary: Join a chat room via WebSocket
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '101':
+          description: WebSocket connection established
+
+  /ws/getClients/{roomId}:
+    get:
+      summary: Get all clients in a room
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of clients
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Client'
+
+  /api/messages/room/{roomId}:
+    get:
+      summary: Get messages in a room
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session_token
+
+  schemas:
+    UserRegistration:
+      type: object
+      required:
+        - email
+        - password
+        - name
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        name:
+          type: string
+
+    UserLogin:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        picture:
+          type: string
+        google_id:
+          type: string
+
+    CreateRoom:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+
+    Room:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        owner_id:
+          type: string
+        created:
+          type: string
+          format: date-time
+        last_activity:
+          type: string
+          format: date-time
+
+    Client:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+        room_id:
+          type: string
+        user_id:
+          type: string
+        username:
+          type: string
+        content:
+          type: string
+        type:
+          type: string
+          enum: [chat, join, leave, private]
+        timestamp:
+          type: string
+          format: date-time
+        recipient:
+          type: string
