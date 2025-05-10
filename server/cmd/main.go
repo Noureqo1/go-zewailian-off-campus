@@ -10,9 +10,10 @@ import (
 	"server/router"
 	"time"
 
+	"server/internal/auth"
+
 	"github.com/joho/godotenv"
 	"github.com/sony/gobreaker"
-	"server/internal/auth"
 )
 
 func main() {
@@ -71,8 +72,8 @@ func main() {
 
 	// Configure retry mechanism
 	retryConfig := message.RetryConfig{
-		MaxElapsedTime:   1 * time.Minute,
-		MaxInterval:      5 * time.Second,
+		MaxElapsedTime:  1 * time.Minute,
+		MaxInterval:     5 * time.Second,
 		InitialInterval: 100 * time.Millisecond,
 	}
 
