@@ -1,9 +1,12 @@
 import { useState, createContext, useEffect } from 'react'
 import { useRouter } from 'next/router'
 
-export type UserInfo = {
-  username: string
+export interface UserInfo {
+  name: string
   id: string
+  email?: string
+  picture?: string
+  username?: string
 }
 
 export const AuthContext = createContext<{
@@ -14,13 +17,13 @@ export const AuthContext = createContext<{
 }>({
   authenticated: false,
   setAuthenticated: () => {},
-  user: { username: '', id: '' },
+  user: { name: '', id: '', email: '', picture: '' },
   setUser: () => {},
 })
 
 const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [authenticated, setAuthenticated] = useState(false)
-  const [user, setUser] = useState<UserInfo>({ username: '', id: '' })
+  const [user, setUser] = useState<UserInfo>({ name: '', id: '', email: '', picture: '' })
 
   const router = useRouter()
 
@@ -28,21 +31,32 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     const userInfo = localStorage.getItem('user_info')
 
     if (!userInfo) {
-      if (window.location.pathname != '/signup') {
-        router.push('/login')
-        return
-      }
-    } else {
-      const user: UserInfo = JSON.parse(userInfo)
-      if (user) {
-        setUser({
-          username: user.username,
-          id: user.id,
-        })
-      }
-      setAuthenticated(true)
+      setAuthenticated(false)
+      setUser({ name: '', id: '', email: '', picture: '' })
+      return
     }
-  }, [authenticated])
+
+    try {
+      const user: UserInfo = JSON.parse(userInfo)
+      if (user && user.id) {
+        setUser({
+          name: user.name,
+          id: user.id,
+          email: user.email,
+          picture: user.picture
+        })
+        setAuthenticated(true)
+      } else {
+        localStorage.removeItem('user_info')
+        setAuthenticated(false)
+        setUser({ name: '', id: '', email: '', picture: '' })
+      }
+    } catch {
+      localStorage.removeItem('user_info')
+      setAuthenticated(false)
+      setUser({ name: '', id: '', email: '', picture: '' })
+    }
+  }, [])
 
   return (
     <AuthContext.Provider

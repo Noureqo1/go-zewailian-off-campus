@@ -12,10 +12,10 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/sony/gobreaker"
+	"server/internal/auth"
 )
 
 func main() {
-
 	if err := godotenv.Load(); err != nil {
 		log.Println("Warning: No .env file found or failed to load .env")
 	}
@@ -36,6 +36,11 @@ func main() {
 	}
 
 	oauth.InitGoogleOAuth()
+
+	// Initialize auth components
+	authRepo := auth.NewRepository(dbConn.GetDB())
+	authService := auth.NewService(authRepo)
+	authHandler := auth.NewHandler(authService)
 
 	userRep := user.NewRepository(dbConn.GetDB())
 	userSvc := user.NewService(userRep)
@@ -82,13 +87,10 @@ func main() {
 
 	go hub.Run()
 
-	if wsHandler != nil && messageSvc != nil {
-	}
-
-	router.InitRouter(userHandler, wsHandler, messageHandler)
+	// Update router initialization to include auth handler
+	router.InitRouter(userHandler, wsHandler, messageHandler, authHandler)
 	log.Println("Starting server on :8080")
 	if err := router.Start(":8080"); err != nil {
 		log.Fatalf("could not start server: %v", err)
 	}
-
 }
