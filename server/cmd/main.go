@@ -38,7 +38,6 @@ func main() {
 
 	oauth.InitGoogleOAuth()
 
-	// Initialize auth components
 	authRepo := auth.NewRepository(dbConn.GetDB())
 	authService := auth.NewService(authRepo)
 	authHandler := auth.NewHandler(authService)
@@ -52,10 +51,8 @@ func main() {
 	if redisClient != nil {
 		messageCache = message.NewRedisCache("localhost:6379", "", 0)
 	}
-	// Create base message service
 	baseSvc := message.NewService(messageRepo, messageCache)
 
-	// Configure circuit breaker
 	cbConfig := message.CircuitBreakerConfig{
 		Name:        "chat-service",
 		MaxRequests: 3,
@@ -70,14 +67,12 @@ func main() {
 		},
 	}
 
-	// Configure retry mechanism
 	retryConfig := message.RetryConfig{
 		MaxElapsedTime:  1 * time.Minute,
 		MaxInterval:     5 * time.Second,
 		InitialInterval: 100 * time.Millisecond,
 	}
 
-	// Create resilient service wrapper
 	messageSvc := message.NewResilientService(baseSvc, cbConfig, retryConfig)
 	messageHandler := message.NewHandler(messageSvc)
 
@@ -88,7 +83,6 @@ func main() {
 
 	go hub.Run()
 
-	// Update router initialization to include auth handler
 	router.InitRouter(userHandler, wsHandler, messageHandler, authHandler)
 	log.Println("Starting server on :8080")
 	if err := router.Start(":8080"); err != nil {

@@ -30,7 +30,8 @@ const LoginPage = () => {
           if (!data.error) {
             setUser(data)
             setAuthenticated(true)
-            localStorage.setItem('user_info', JSON.stringify(data))
+            setUser(data)
+            setAuthenticated(true)
             router.push('/')
           }
         })
@@ -57,7 +58,8 @@ const LoginPage = () => {
           picture: data.picture
         }
 
-        localStorage.setItem('user_info', JSON.stringify(user))
+        setUser(user)
+        setAuthenticated(true)
         return router.push('/')
       }
     } catch (err) {
@@ -114,7 +116,7 @@ const LoginPage = () => {
           </div>
           <button
             type='submit'
-            className='w-full px-4 py-2 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+            className='w-full px-4 py-2 text-black bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
           >
             Sign in
           </button>
@@ -139,9 +141,9 @@ const LoginPage = () => {
 
 
         <div className='text-center text-sm text-gray-600'>
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link href='/signup'>
-            <span className='font-medium text-indigo-600 hover:text-indigo-500 cursor-pointer'>
+            <span className='font-medium text-black hover:text-gray-700 cursor-pointer'>
               Sign up
             </span>
           </Link>

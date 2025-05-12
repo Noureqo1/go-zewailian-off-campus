@@ -28,34 +28,32 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter()
 
   useEffect(() => {
-    const userInfo = localStorage.getItem('user_info')
-
-    if (!userInfo) {
-      setAuthenticated(false)
-      setUser({ name: '', id: '', email: '', picture: '' })
-      return
-    }
-
-    try {
-      const user: UserInfo = JSON.parse(userInfo)
-      if (user && user.id) {
-        setUser({
-          name: user.name,
-          id: user.id,
-          email: user.email,
-          picture: user.picture
+    const checkSession = async () => {
+      try {
+        const response = await fetch('/api/auth/me', {
+          credentials: 'include'
         })
-        setAuthenticated(true)
-      } else {
-        localStorage.removeItem('user_info')
+        
+        if (response.ok) {
+          const user = await response.json()
+          setUser({
+            name: user.name,
+            id: user.id,
+            email: user.email,
+            picture: user.picture
+          })
+          setAuthenticated(true)
+        } else {
+          setAuthenticated(false)
+          setUser({ name: '', id: '', email: '', picture: '' })
+        }
+      } catch {
         setAuthenticated(false)
         setUser({ name: '', id: '', email: '', picture: '' })
       }
-    } catch {
-      localStorage.removeItem('user_info')
-      setAuthenticated(false)
-      setUser({ name: '', id: '', email: '', picture: '' })
     }
+
+    checkSession()
   }, [])
 
   return (

@@ -9,12 +9,14 @@ Accepted
 ## Context
 
 Our chat application requires different services to communicate with each other:
+
 1. Message Service - Handles message persistence and retrieval
 2. WebSocket Service - Manages real-time connections and message broadcasting
 3. User Service - Manages user authentication and profiles
 4. Cache Service - Handles message and room caching
 
 We need to decide on appropriate communication patterns between these services to ensure:
+
 - Real-time message delivery
 - System reliability
 - Data consistency
@@ -26,42 +28,51 @@ We need to decide on appropriate communication patterns between these services t
 We have implemented a hybrid approach using both synchronous and asynchronous communication patterns:
 
 ### 1. Synchronous Communication (HTTP/REST)
+
 Used for:
+
 - User authentication and profile operations
 - Room creation and management
 - Message history retrieval
 - Cache operations (with circuit breaker pattern)
 
 Justification:
+
 - Immediate consistency required for user operations
 - Simple request-response pattern suitable for CRUD operations
 - Direct feedback needed for user actions
 - Circuit breaker pattern handles failures gracefully
 
 ### 2. Asynchronous Communication (WebSocket)
+
 Used for:
+
 - Real-time message broadcasting
 - User presence updates
 - Room activity notifications
 
 Justification:
+
 - Real-time updates required for chat functionality
 - Reduces server load compared to polling
 - Better user experience with instant message delivery
 - Natural fit for event-driven architecture
 
 ### 3. Hybrid Patterns
+
 Some operations use both patterns:
+
 - Message sending:
-  * Synchronous persistence to database
-  * Asynchronous broadcasting to room participants
+  - Synchronous persistence to database
+  - Asynchronous broadcasting to room participants
 - Room updates:
-  * Synchronous state change in database
-  * Asynchronous notification to room members
+  - Synchronous state change in database
+  - Asynchronous notification to room members
 
 ## Implementation Details
 
 1. **Synchronous Communication**:
+
 ```go
 // HTTP handlers for synchronous operations
 func (h *Handler) CreateRoom(c *gin.Context) {
@@ -74,6 +85,7 @@ func (h *Handler) GetMessages(c *gin.Context) {
 ```
 
 2. **Asynchronous Communication**:
+
 ```go
 // WebSocket handler for asynchronous operations
 func (h *Handler) HandleWebSocket(c *gin.Context) {
@@ -86,6 +98,7 @@ func (h *Handler) HandleWebSocket(c *gin.Context) {
 ```
 
 3. **Resilience Patterns**:
+
 ```go
 // Circuit breaker for synchronous operations
 cbConfig := CircuitBreakerConfig{
@@ -105,6 +118,7 @@ retryConfig := RetryConfig{
 ## Consequences
 
 ### Positive
+
 1. **Improved Reliability**:
    - Circuit breakers prevent cascade failures
    - Retry mechanisms handle transient issues
@@ -121,6 +135,7 @@ retryConfig := RetryConfig{
    - Graceful degradation during issues
 
 ### Negative
+
 1. **Increased Complexity**:
    - Managing both sync and async patterns
    - More complex error handling
@@ -134,6 +149,7 @@ retryConfig := RetryConfig{
 ## Monitoring and Metrics
 
 To ensure the effectiveness of these patterns, we monitor:
+
 1. WebSocket connection health
 2. Circuit breaker state changes
 3. Message delivery latency

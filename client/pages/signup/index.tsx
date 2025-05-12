@@ -1,7 +1,7 @@
 import { API_URL } from '../../constants'
 import { useState, useContext } from 'react'
 import { useRouter } from 'next/router'
-import { FcGoogle } from 'react-icons/fc'
+import Image from 'next/image'
 import Link from 'next/link'
 
 import { AuthContext, UserInfo } from '../../modules/auth_provider'
@@ -37,7 +37,6 @@ const SignupPage = () => {
           picture: data.picture
         }
 
-        localStorage.setItem('user_info', JSON.stringify(user))
         setAuthenticated(true)
         setUser(user)
         router.push('/')
@@ -91,7 +90,7 @@ const SignupPage = () => {
           </div>
           <button
             type='submit'
-            className='w-full px-4 py-2 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+            className='w-full px-4 py-2 text-black bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
           >
             Sign up
           </button>
@@ -110,7 +109,9 @@ const SignupPage = () => {
           onClick={handleGoogleSignup}
           className='flex items-center justify-center w-full px-4 py-2 space-x-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
         >
-          <FcGoogle className='w-6 h-6' aria-hidden='true' />
+          <div className='relative w-6 h-6'>
+            <Image src='/google.svg' alt='Google' layout='fill' />
+          </div>
           <span>Sign up with Google</span>
         </button>
 

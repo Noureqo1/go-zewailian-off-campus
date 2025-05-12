@@ -13,7 +13,6 @@ import (
 
 var testDB *sql.DB
 
-// SetupTestDB initializes a test database connection
 func SetupTestDB(t *testing.T) *sql.DB {
 	err := godotenv.Load("../.env")
 	if err != nil {
@@ -30,7 +29,6 @@ func SetupTestDB(t *testing.T) *sql.DB {
 		t.Fatal("Error connecting to database:", err)
 	}
 
-	// Run migrations
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
 	if err != nil {
 		t.Fatal("Error creating migration driver:", err)
@@ -53,7 +51,6 @@ func SetupTestDB(t *testing.T) *sql.DB {
 	return db
 }
 
-// CleanupTestDB cleans up the test database
 func CleanupTestDB(t *testing.T, db *sql.DB) {
 	if db != nil {
 		if err := db.Close(); err != nil {
