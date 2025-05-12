@@ -1,11 +1,13 @@
 # Zewailian Off Campus - System Design Document
 
 ## Overview
+
 Zewailian Off Campus is a real-time chat and blogging platform specifically designed for Zewail City for Science and Technology students. The platform enables students to create chat rooms, share achievements, upload educational materials, make announcements, and participate in Q&A discussions.
 
 ## 1. Requirements Specification
 
 ### Functional Requirements
+
 1. User Management
    - User registration and authentication
    - Profile management
@@ -41,6 +43,7 @@ Zewailian Off Campus is a real-time chat and blogging platform specifically desi
    - Mark accepted answers
 
 ### Non-Functional Requirements
+
 1. Performance
    - Message delivery latency < 100ms
    - Support for 1000+ concurrent users
@@ -91,6 +94,7 @@ Zewailian Off Campus is a real-time chat and blogging platform specifically desi
 ## Architecture Overview
 
 The system follows a microservices architecture pattern using:
+
 - Go for backend services
 - Next.js with TypeScript for frontend
 - PostgreSQL for persistent data
